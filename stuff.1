@@ -1,0 +1,162 @@
+.TH STUFF 1 "2026-03-04" "allmystuff" "User Commands"
+.SH NAME
+stuff \- CLI client for the allmystuff inventory management API
+.SH SYNOPSIS
+.B stuff
+[\fI\,GLOBAL OPTIONS\/\fR] \fI\,COMMAND\/\fR [\fI\,COMMAND OPTIONS\/\fR]
+.SH DESCRIPTION
+.B stuff
+is a command-line client for the allmystuff REST API. It provides full CRUD
+operations for inventory items, image management, and tag listing.
+Output is formatted as aligned tables by default, or raw JSON with the
+.B \-\-json
+flag.
+.PP
+Configuration is resolved in order: command-line flags, environment variables,
+built-in defaults.
+.SH GLOBAL OPTIONS
+.TP
+.BI \-\-url " URL"
+API base URL. Overrides
+.BR ALLMYSTUFF_URL .
+Default:
+.IR http://localhost:8080 .
+.TP
+.BI \-\-api\-key " KEY"
+API key for Bearer token authentication. Overrides
+.BR ALLMYSTUFF_API_KEY .
+Supports 1Password secret references (\fIop://vault/item/field\fR);
+when specified, the
+.B op
+CLI is invoked to resolve the actual value.
+.TP
+.B \-\-json
+Output raw JSON instead of formatted tables.
+.SH COMMANDS
+.SS "stuff item list"
+List inventory items with optional filters.
+.TP
+.BI \-q ", " \-\-query " TEXT"
+Search items by name, description, brand, or model.
+.TP
+.BI \-\-tag " TAG"
+Filter by tag name.
+.TP
+.BI \-\-condition " CONDITION"
+Filter by condition.
+.SS "stuff item add"
+Create a new item. Requires
+.BR \-\-name .
+.TP
+.BI \-\-name " NAME"
+Item name (required).
+.TP
+.BI \-\-description " TEXT"
+Item description.
+.TP
+.BI \-\-brand " BRAND"
+Brand name.
+.TP
+.BI \-\-model " MODEL"
+Model name or number.
+.TP
+.BI \-\-serial " SERIAL"
+Serial number.
+.TP
+.BI \-\-purchase\-date " YYYY-MM-DD"
+Purchase date.
+.TP
+.BI \-\-purchase\-price " AMOUNT"
+Purchase price (float).
+.TP
+.BI \-\-estimated\-value " AMOUNT"
+Estimated current value (float).
+.TP
+.BI \-\-condition " CONDITION"
+Item condition.
+.TP
+.BI \-\-notes " TEXT"
+Additional notes.
+.TP
+.BI \-\-tag " TAG"
+Tag to assign (comma-separated or repeatable).
+.SS "stuff item show <id>"
+Display full details of an item by UUID.
+.SS "stuff item edit <id>"
+Update an existing item. Only flags provided are changed; all other fields
+retain their current values. Accepts the same flags as
+.BR "stuff item add" .
+.SS "stuff item delete <id>"
+Delete an item and its associated images.
+.TP
+.BI \-y ", " \-\-yes
+Skip the confirmation prompt.
+.SS "stuff image add <item\-id> <file>"
+Upload an image file and attach it to an item. Supports JPEG, PNG, and other
+common formats. Maximum file size is 20MB.
+.SS "stuff image delete <id>"
+Delete an image by its UUID.
+.SS "stuff tag list"
+List all tags in the system.
+.SH ENVIRONMENT
+.TP
+.B ALLMYSTUFF_URL
+API base URL. Default:
+.IR http://localhost:8080 .
+.TP
+.B ALLMYSTUFF_API_KEY
+API key for Bearer token authentication. Supports 1Password secret references
+(\fIop://vault/item/field\fR).
+.SH EXAMPLES
+List all items:
+.PP
+.RS
+.nf
+stuff item list
+.fi
+.RE
+.PP
+Search for cameras tagged as electronics:
+.PP
+.RS
+.nf
+stuff item list -q camera --tag electronics
+.fi
+.RE
+.PP
+Add an item with tags:
+.PP
+.RS
+.nf
+stuff item add --name "Sony A7IV" --brand Sony --model A7IV \
+  --condition excellent --purchase-price 2499.99 \
+  --tag camera,electronics
+.fi
+.RE
+.PP
+Upload a photo for an item:
+.PP
+.RS
+.nf
+stuff image add 550e8400-e29b-41d4-a716-446655440000 photo.jpg
+.fi
+.RE
+.PP
+Get JSON output for scripting:
+.PP
+.RS
+.nf
+stuff --json item list | jq '.[].name'
+.fi
+.RE
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+An error occurred (invalid arguments, API error, network failure).
+.SH AUTHOR
+Mark Sjurseth
+.SH COPYRIGHT
+Copyright (c) 2026 Mark Sjurseth. Licensed under the MIT License.
