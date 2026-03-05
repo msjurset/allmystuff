@@ -1,6 +1,6 @@
 # Binaries
-stuff
-server
+/stuff
+/server
 *.exe
 *.exe~
 *.dll
